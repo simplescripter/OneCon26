@@ -1,0 +1,524 @@
+{
+  "name": "Long Running Query",
+  "description": "",
+  "actions": [
+    {
+      "action": {
+        "type": "manual_trigger",
+        "tag": "core_action",
+        "connection_id": null,
+        "connection_name": null,
+        "use_connection_name": false,
+        "integration_id": null,
+        "data": {
+          "name": "Manual Trigger",
+          "action_type": "manual_trigger",
+          "trigger_type": "static",
+          "dynamic_properties": null,
+          "static_payload": "{}"
+        },
+        "state": "active",
+        "description": null,
+        "client_data": {
+          "position": {
+            "x": 0.0,
+            "y": 0.0
+          },
+          "dimensions": {
+            "width": 256.0,
+            "height": 100.0
+          },
+          "collapsed": false
+        },
+        "snippet_workflow_id": null,
+        "snippet_version_id": null
+      },
+      "export_id": 6,
+      "connected_to": [
+        {
+          "target": 3,
+          "custom_handle": null,
+          "payload": null
+        }
+      ],
+      "parent_action": null
+    },
+    {
+      "action": {
+        "type": "http_request",
+        "tag": "integration",
+        "connection_id": "b8fd5ba4-ebe9-4202-9745-18ed37e19a5f",
+        "connection_name": "",
+        "use_connection_name": false,
+        "integration_id": "ea6018b7-2a2f-44ca-b9b6-27a0434b0503",
+        "data": {
+          "name": "Long Running Query PQ",
+          "action_type": "http_request",
+          "public_action_id": "5864fb04-634a-4cf9-96e8-6b898f26880a",
+          "method": "post",
+          "url": "https://usea1-s1university.sentinelone.net/sdl/v2/api/queries",
+          "url_path": "/sdl/api/query",
+          "url_prefix": null,
+          "payload": "{\n \"queryType\": \"PQ\",\n \"startTime\": \"36h\",\n \"pq\": {\n \"query\": \"dataSource.vendor = 'Okta' status = 'FAILURE' actor.user.type = 'User' status_detail = 'LOCKED_OUT' | group count = count () by status_detail, actor.user.name, actor.user.email_addr | sort -count | filter count > 2\"\n }\n}",
+          "parameters": [],
+          "retry_on_status_code": null,
+          "retry_on_status_codes": [
+            500
+          ],
+          "retry_config": null,
+          "ssl_verification": true,
+          "timeout": 30,
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "use_authentication_data": true,
+          "use_proxy": false,
+          "proxy_user": null,
+          "proxy_password": null,
+          "proxy_host": null,
+          "proxy_port": null,
+          "redirect_follow": true,
+          "continue_on_fail": false,
+          "continue_on_fail_status_codes": [],
+          "body_type": null
+        },
+        "state": "active",
+        "description": "Get events (log records) that match your query.",
+        "client_data": {
+          "position": {
+            "x": 0.0,
+            "y": 200.6772
+          },
+          "dimensions": {
+            "width": 256.0,
+            "height": 75.0
+          },
+          "collapsed": false
+        },
+        "snippet_workflow_id": null,
+        "snippet_version_id": null
+      },
+      "export_id": 3,
+      "connected_to": [
+        {
+          "target": 5,
+          "custom_handle": null,
+          "payload": null
+        }
+      ],
+      "parent_action": null
+    },
+    {
+      "action": {
+        "type": "loop",
+        "tag": "core_action",
+        "connection_id": null,
+        "connection_name": null,
+        "use_connection_name": false,
+        "integration_id": null,
+        "data": {
+          "name": "Loop",
+          "action_type": "loop",
+          "loop_type": "while",
+          "number_of_iterations": 1,
+          "object_to_iterate": null,
+          "is_parallel": false
+        },
+        "state": "active",
+        "description": "",
+        "client_data": {
+          "position": {
+            "x": -256.0,
+            "y": 414.35439999999994
+          },
+          "dimensions": {
+            "width": 768.0,
+            "height": 1171.0632
+          },
+          "collapsed": false
+        },
+        "snippet_workflow_id": null,
+        "snippet_version_id": null
+      },
+      "export_id": 5,
+      "connected_to": [
+        {
+          "target": 7,
+          "custom_handle": "inner",
+          "payload": null
+        },
+        {
+          "target": 9,
+          "custom_handle": null,
+          "payload": null
+        }
+      ],
+      "parent_action": null
+    },
+    {
+      "action": {
+        "type": "delay",
+        "tag": "core_action",
+        "connection_id": null,
+        "connection_name": null,
+        "use_connection_name": false,
+        "integration_id": null,
+        "data": {
+          "name": "One Second Delay",
+          "action_type": "delay",
+          "time_unit": "seconds",
+          "value": 1
+        },
+        "state": "active",
+        "description": "",
+        "client_data": {
+          "position": {
+            "x": 256.0,
+            "y": 176.6772
+          },
+          "dimensions": {
+            "width": 256.0,
+            "height": 76.0
+          },
+          "collapsed": false
+        },
+        "snippet_workflow_id": null,
+        "snippet_version_id": null
+      },
+      "export_id": 7,
+      "connected_to": [
+        {
+          "target": 4,
+          "custom_handle": null,
+          "payload": null
+        }
+      ],
+      "parent_action": 5
+    },
+    {
+      "action": {
+        "type": "variable",
+        "tag": "core_action",
+        "connection_id": null,
+        "connection_name": null,
+        "use_connection_name": false,
+        "integration_id": null,
+        "data": {
+          "name": "Results",
+          "action_type": "variable",
+          "variables": [
+            {
+              "name": "results",
+              "value": "{{Function.MAP_TABLE(local_var.parsedColumns, local_var.parsedRows)}}",
+              "should_use_as_output": false,
+              "is_secret": false
+            }
+          ],
+          "variables_scope": "local",
+          "expire_in_unit": null,
+          "expire_in_value": null,
+          "expire_method": null,
+          "global_var_workflow_access_type": null,
+          "global_var_workflow_access_workflow_ids": null
+        },
+        "state": "active",
+        "description": "",
+        "client_data": {
+          "position": {
+            "x": 0.0,
+            "y": 1686.0948
+          },
+          "dimensions": {
+            "width": 256.0,
+            "height": 75.0
+          },
+          "collapsed": false
+        },
+        "snippet_workflow_id": null,
+        "snippet_version_id": null
+      },
+      "export_id": 9,
+      "connected_to": [],
+      "parent_action": null
+    },
+    {
+      "action": {
+        "type": "http_request",
+        "tag": "integration",
+        "connection_id": "b8fd5ba4-ebe9-4202-9745-18ed37e19a5f",
+        "connection_name": "",
+        "use_connection_name": false,
+        "integration_id": "ea6018b7-2a2f-44ca-b9b6-27a0434b0503",
+        "data": {
+          "name": "Long Running Query Ping",
+          "action_type": "http_request",
+          "public_action_id": "5864fb04-634a-4cf9-96e8-6b898f26880a",
+          "method": "get",
+          "url": "{{Connection.protocol}}{{Connection.url}}/sdl/v2/api/queries/{{long-running-query-pq.body.id}}?lastStepSeen=50",
+          "url_path": "/sdl/api/query",
+          "url_prefix": null,
+          "payload": null,
+          "parameters": [],
+          "retry_on_status_code": null,
+          "retry_on_status_codes": [
+            500
+          ],
+          "retry_config": null,
+          "ssl_verification": true,
+          "timeout": 30,
+          "headers": {
+            "Content-Type": "application/json",
+            "X-Dataset-Query-Forward-Tag": "{{long-running-query-pq.headers.x-dataset-query-forward-tag}}"
+          },
+          "use_authentication_data": true,
+          "use_proxy": false,
+          "proxy_user": null,
+          "proxy_password": null,
+          "proxy_host": null,
+          "proxy_port": null,
+          "redirect_follow": true,
+          "continue_on_fail": false,
+          "continue_on_fail_status_codes": [],
+          "body_type": null
+        },
+        "state": "active",
+        "description": "Get events (log records) that match your query.",
+        "client_data": {
+          "position": {
+            "x": 256.0,
+            "y": 353.3544
+          },
+          "dimensions": {
+            "width": 256.0,
+            "height": 76.0
+          },
+          "collapsed": false
+        },
+        "snippet_workflow_id": null,
+        "snippet_version_id": null
+      },
+      "export_id": 4,
+      "connected_to": [
+        {
+          "target": 8,
+          "custom_handle": null,
+          "payload": null
+        }
+      ],
+      "parent_action": 5
+    },
+    {
+      "action": {
+        "type": "condition",
+        "tag": "core_action",
+        "connection_id": null,
+        "connection_name": null,
+        "use_connection_name": false,
+        "integration_id": null,
+        "data": {
+          "name": "Query Steps Finished",
+          "action_type": "condition",
+          "condition_type": "simple",
+          "condition": {
+            "operator": "and",
+            "conditions": [
+              {
+                "operator": "and",
+                "conditions": [
+                  {
+                    "input_value": "{{long-running-query-ping.body.stepsCompleted}}",
+                    "compared_value": "{{long-running-query-ping.body.stepsTotal}}",
+                    "comparison_operator": "equals"
+                  }
+                ]
+              }
+            ]
+          },
+          "conditions": null,
+          "conditions_relationship": "and"
+        },
+        "state": "active",
+        "description": "",
+        "client_data": {
+          "position": {
+            "x": 256.0,
+            "y": 530.0316
+          },
+          "dimensions": {
+            "width": 256.0,
+            "height": 76.0
+          },
+          "collapsed": false
+        },
+        "snippet_workflow_id": null,
+        "snippet_version_id": null
+      },
+      "export_id": 8,
+      "connected_to": [
+        {
+          "target": 1,
+          "custom_handle": "true",
+          "payload": null
+        }
+      ],
+      "parent_action": 5
+    },
+    {
+      "action": {
+        "type": "variable",
+        "tag": "core_action",
+        "connection_id": null,
+        "connection_name": null,
+        "use_connection_name": false,
+        "integration_id": null,
+        "data": {
+          "name": "Column and Row variables",
+          "action_type": "variable",
+          "variables": [
+            {
+              "name": "parsedColumns",
+              "value": "{{Function.JQ(long-running-query-ping.body.data.columns, \".[] | .name\")}}",
+              "should_use_as_output": false,
+              "is_secret": false
+            },
+            {
+              "name": "parsedRows",
+              "value": "{{long-running-query-ping.body.data.values}}",
+              "should_use_as_output": false,
+              "is_secret": false
+            }
+          ],
+          "variables_scope": "local",
+          "expire_in_unit": null,
+          "expire_in_value": null,
+          "expire_method": null,
+          "global_var_workflow_access_type": null,
+          "global_var_workflow_access_workflow_ids": null
+        },
+        "state": "active",
+        "description": "",
+        "client_data": {
+          "position": {
+            "x": 334.75,
+            "y": 706.7088
+          },
+          "dimensions": {
+            "width": 256.0,
+            "height": 76.0
+          },
+          "collapsed": false
+        },
+        "snippet_workflow_id": null,
+        "snippet_version_id": null
+      },
+      "export_id": 1,
+      "connected_to": [
+        {
+          "target": 2,
+          "custom_handle": null,
+          "payload": null
+        }
+      ],
+      "parent_action": 5
+    },
+    {
+      "action": {
+        "type": "http_request",
+        "tag": "integration",
+        "connection_id": "b8fd5ba4-ebe9-4202-9745-18ed37e19a5f",
+        "connection_name": "",
+        "use_connection_name": false,
+        "integration_id": "ea6018b7-2a2f-44ca-b9b6-27a0434b0503",
+        "data": {
+          "name": "Delete Query",
+          "action_type": "http_request",
+          "public_action_id": "5864fb04-634a-4cf9-96e8-6b898f26880a",
+          "method": "delete",
+          "url": "{{Connection.protocol}}{{Connection.url}}/sdl/v2/api/queries/{{long-running-query-pq.body.id}}",
+          "url_path": "/sdl/api/query",
+          "url_prefix": null,
+          "payload": null,
+          "parameters": [],
+          "retry_on_status_code": null,
+          "retry_on_status_codes": [
+            500
+          ],
+          "retry_config": null,
+          "ssl_verification": true,
+          "timeout": 30,
+          "headers": {
+            "Content-Type": "application/json",
+            "X-Dataset-Query-Forward-Tag": "{{long-running-query-pq.headers.x-dataset-query-forward-tag}}"
+          },
+          "use_authentication_data": true,
+          "use_proxy": false,
+          "proxy_user": null,
+          "proxy_password": null,
+          "proxy_host": null,
+          "proxy_port": null,
+          "redirect_follow": true,
+          "continue_on_fail": false,
+          "continue_on_fail_status_codes": [],
+          "body_type": null
+        },
+        "state": "active",
+        "description": "Get events (log records) that match your query.",
+        "client_data": {
+          "position": {
+            "x": 334.75,
+            "y": 883.386
+          },
+          "dimensions": {
+            "width": 256.0,
+            "height": 76.0
+          },
+          "collapsed": false
+        },
+        "snippet_workflow_id": null,
+        "snippet_version_id": null
+      },
+      "export_id": 2,
+      "connected_to": [
+        {
+          "target": 0,
+          "custom_handle": null,
+          "payload": null
+        }
+      ],
+      "parent_action": 5
+    },
+    {
+      "action": {
+        "type": "break_loop",
+        "tag": "core_action",
+        "connection_id": null,
+        "connection_name": null,
+        "use_connection_name": false,
+        "integration_id": null,
+        "data": {
+          "name": "Break",
+          "action_type": "break_loop"
+        },
+        "state": "active",
+        "description": "",
+        "client_data": {
+          "position": {
+            "x": 334.75,
+            "y": 1060.0632
+          },
+          "dimensions": {
+            "width": 256.0,
+            "height": 76.0
+          },
+          "collapsed": false
+        },
+        "snippet_workflow_id": null,
+        "snippet_version_id": null
+      },
+      "export_id": 0,
+      "connected_to": [],
+      "parent_action": 5
+    }
+  ],
+  "notes": []
+}
