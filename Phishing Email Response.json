@@ -1,0 +1,295 @@
+{
+  "name": "Phishing Email Response",
+  "description": "",
+  "actions": [
+    {
+      "action": {
+        "type": "email_trigger",
+        "tag": "core_action",
+        "connection_id": "a79c5768-4ef7-434e-ab39-2e47c1a29136",
+        "connection_name": null,
+        "use_connection_name": false,
+        "integration_id": "b9f3d6e4-4c5a-46d9-97b3-a12f385c0bfa",
+        "data": {
+          "name": "Phishing Alert",
+          "action_type": "email_trigger",
+          "mark_as_read": true,
+          "email_method": "imap"
+        },
+        "description": "Cloned from Jesse Netz",
+        "client_data": {
+          "position": {
+            "x": -619.0,
+            "y": -312.0
+          },
+          "dimensions": {
+            "width": 256.0,
+            "height": 100.0
+          },
+          "collapsed": false
+        }
+      },
+      "export_id": 3,
+      "connected_to": [
+        {
+          "target": 2,
+          "custom_handle": null
+        }
+      ],
+      "parent_action": null
+    },
+    {
+      "action": {
+        "type": "variable",
+        "tag": "core_action",
+        "connection_id": null,
+        "connection_name": null,
+        "use_connection_name": false,
+        "integration_id": null,
+        "data": {
+          "name": "Extract Valuable Data",
+          "action_type": "variable",
+          "variables": [
+            {
+              "name": "PhishingSender",
+              "value": "{{Function.EXTRACT_EMAIL(phishing-alert.from_)}}",
+              "is_secret": false
+            },
+            {
+              "name": "PhishingDomains",
+              "value": "{{Function.EXTRACT_DOMAINS(phishing-alert})}}",
+              "is_secret": false
+            },
+            {
+              "name": "PhishingReporter",
+              "value": "{{Function.EXTRACT_EMAIL(phishing-alert.from_)}}",
+              "is_secret": false
+            },
+            {
+              "name": "PhishingSubject",
+              "value": "{{phishing-alert.subject}}",
+              "is_secret": false
+            },
+            {
+              "name": "PhishingAttachment",
+              "value": "{{phishing-alert.attachments[0].content_base64}}",
+              "is_secret": false
+            },
+            {
+              "name": "PhishingUrl",
+              "value": "{{Function.ACCESS_LIST_ITEM(Function.REGEX_EXTRACT(phishing-alert.body,\"<(?P<url>https?:\\/\\/[^>\\s]+)>\"),0)}}",
+              "is_secret": false
+            }
+          ],
+          "variables_scope": "local"
+        },
+        "description": "",
+        "client_data": {
+          "position": {
+            "x": -619.140572631579,
+            "y": -111.3228
+          },
+          "dimensions": {
+            "width": 256.0,
+            "height": 76.0
+          },
+          "collapsed": false
+        }
+      },
+      "export_id": 2,
+      "connected_to": [
+        {
+          "target": 1,
+          "custom_handle": null
+        }
+      ],
+      "parent_action": null
+    },
+    {
+      "action": {
+        "type": "variable",
+        "tag": "core_action",
+        "connection_id": null,
+        "connection_name": null,
+        "use_connection_name": false,
+        "integration_id": null,
+        "data": {
+          "name": "Craft Alert ID",
+          "action_type": "variable",
+          "variables": [
+            {
+              "name": "alertID",
+              "value": "stugart-{{Function.DATETIME_TO_EPOCH(Function.DATETIME_NOW())}}",
+              "is_secret": false
+            },
+            {
+              "name": "AssetID",
+              "value": "Asset-{{Function.DATETIME_TO_EPOCH(Function.DATETIME_NOW())}}",
+              "is_secret": false
+            }
+          ],
+          "variables_scope": "local"
+        },
+        "description": "",
+        "client_data": {
+          "position": {
+            "x": -622.0,
+            "y": 44.35439999999994
+          },
+          "dimensions": {
+            "width": 256.0,
+            "height": 76.0
+          },
+          "collapsed": false
+        }
+      },
+      "export_id": 1,
+      "connected_to": [
+        {
+          "target": 0,
+          "custom_handle": null
+        }
+      ],
+      "parent_action": null
+    },
+    {
+      "action": {
+        "type": "variable",
+        "tag": "core_action",
+        "connection_id": null,
+        "connection_name": null,
+        "use_connection_name": false,
+        "integration_id": null,
+        "data": {
+          "name": "Alert Body",
+          "action_type": "variable",
+          "variables": [
+            {
+              "name": "alertBody",
+              "value": "{\n  \"finding_info\": {\n    \"uid\": \"{{local_var.alertID}}\",\n    \"title\": \"Stugart Phishing Incident - {{phishing-alert.subject}}\",\n    \"desc\": \"Stugart Phishing Alert\"\n  },\n  \"evidences\": [\n    {\n      \"process\": {\n        \"file\": {\n          \"hashes\": [\n            {\n              \"algorithm_id\": 1,\n              \"value\": \"6d23b468ea963bfa21a29891217d6a86\"\n            },\n            {\n              \"algorithm_id\": 3,\n              \"value\": \"b55cdce773bc77ee46b503dbd9430828cc0f518b94289fbfa70b5fbb02ab1847\"\n            }\n          ],\n          \"name\": \"{{phishing-alert.attachments[0].filename}}\",\n          \"type_id\": 1\n        }\n      }\n    }\n  ],\n  \"resources\": [\n    {\n      \"uid\": \"{{local_var.AssetID}}\",\n      \"name\": \"{{local_var.PhishingReporter}}\",\n      \"type\": \"identity::user\"\n    }\n  ], \n  \"observables\": [\n    {\n      \"name\": \"SHA256\",\n      \"type_id\": 8,\n      \"value\": \"{{phishing-alert.attachments[0].content_sha256}}\"\n    }\n  ],\n  \"severity\": \"high\",\n  \"category_uid\": 2,\n  \"class_uid\": 99602001,\n  \"class_name\": \"S1 Security Alert\",\n  \"type_uid\": 9960200101,\n  \"type_name\": \"S1 Security Alert: Create\",\n  \"category_name\": \"Findings\",\n  \"activity_id\": 1,\n  \"metadata\": {\n    \"version\": \"1.1.0\",\n    \"extension\": {\n      \"name\": \"s1\",\n      \"uid\": \"{{Function.STRING(998)}}\",\n      \"version\": \"0.1.0\"\n    },\n    \"product\": {\n      \"name\": \"Hyperautomation\",\n      \"vendor_name\": \"SentinelOne\"\n    },\n    \"logged_time\": {{Function.DATETIME_TO_MS(Function.DATETIME_NOW())}},\n    \"modified_time\": {{Function.DATETIME_TO_MS(Function.DATETIME_NOW())}}\n  },\n  \"time\": {{Function.DATETIME_TO_MS(Function.DATETIME_NOW())}},  \n  \"severity_id\": 4,\n  \"state_id\": 1,\n  \"attack_surface_ids\": [3],\n  \"s1_classification_id\": 28\n}",
+              "is_secret": false
+            }
+          ],
+          "variables_scope": "local"
+        },
+        "description": "",
+        "client_data": {
+          "position": {
+            "x": -622.0,
+            "y": 221.0315999999999
+          },
+          "dimensions": {
+            "width": 256.0,
+            "height": 76.0
+          },
+          "collapsed": false
+        }
+      },
+      "export_id": 0,
+      "connected_to": [
+        {
+          "target": 5,
+          "custom_handle": null
+        }
+      ],
+      "parent_action": null
+    },
+    {
+      "action": {
+        "type": "variable",
+        "tag": "core_action",
+        "connection_id": null,
+        "connection_name": null,
+        "use_connection_name": false,
+        "integration_id": null,
+        "data": {
+          "name": "Variable",
+          "action_type": "variable",
+          "variables": [
+            {
+              "name": "alertFormatted",
+              "value": "{  \n  \"name\":\"stugart\",\n  \"data\":{{Function.STRING(local_var.alertBody)}}\n}",
+              "is_secret": false
+            }
+          ],
+          "variables_scope": "local"
+        },
+        "description": "",
+        "client_data": {
+          "position": {
+            "x": -622.0,
+            "y": 396.7087999999999
+          },
+          "dimensions": {
+            "width": 256.0,
+            "height": 76.0
+          },
+          "collapsed": false
+        }
+      },
+      "export_id": 5,
+      "connected_to": [
+        {
+          "target": 4,
+          "custom_handle": null
+        }
+      ],
+      "parent_action": null
+    },
+    {
+      "action": {
+        "type": "http_request",
+        "tag": "core_action",
+        "connection_id": null,
+        "connection_name": "",
+        "use_connection_name": false,
+        "integration_id": null,
+        "data": {
+          "name": "Send HTTP Request",
+          "action_type": "http_request",
+          "public_action_id": null,
+          "method": "post",
+          "url": "https://ingest.us1.sentinelone.net/v1/alerts?siteID=2122154983539429371",
+          "url_path": null,
+          "url_prefix": null,
+          "payload": "{{Function.BASE64_DECODE_AS_BYTES(Function.COMPRESS([local_var.alertFormatted], \"gzip\"))}}",
+          "parameters": [],
+          "retry_on_status_code": null,
+          "retry_on_status_codes": [],
+          "ssl_verification": true,
+          "timeout": 30,
+          "headers": {
+            "Authorization": "Bearer eyJraWQiOiJ1cy1lYXN0LTEtcHJvZC0wIiwiYWxnIjoiRVMyNTYifQ.eyJzdWIiOiJzZXJ2aWNldXNlci0xNmFjN2M4MS0yNGNjLTQ4OTctYWQyMi01MDc1ZGEyNTJhMGZAbWdtdC0xMTYzMy5zZW50aW5lbG9uZS5uZXQiLCJpc3MiOiJhdXRobi11cy1lYXN0LTEtcHJvZCIsImRlcGxveW1lbnRfaWQiOiIxMTYzMyIsInR5cGUiOiJ1c2VyIiwiZXhwIjoxNzg5NzczMjY5LCJpYXQiOjE3NTgyMzczMDgsImp0aSI6IjE3MGQyNDAyLTYyZjItNGU2MC05NWM3LTU3YThjMTBlNmE2ZSJ9.lyn32Hcbn-m_odK5lN8ESNR9vrt5K2iA_wJTwq7LvkSkzrtaekMuj5NeNmJIufOpT0uFcAn4FxIJbmN4HCIW7A",
+            "Content-Encoding": "gzip",
+            "Content-Type": "application/json",
+            "S1-Scope": "2122153722974915716:2122154983539429371",
+            "S1-Trace-ID": "stugart-1234:alwayslog"
+          },
+          "use_authentication_data": true,
+          "use_proxy": false,
+          "proxy_user": null,
+          "proxy_password": null,
+          "proxy_host": null,
+          "proxy_port": null,
+          "redirect_follow": true,
+          "continue_on_fail": false
+        },
+        "description": "",
+        "client_data": {
+          "position": {
+            "x": -622.5,
+            "y": 570.193
+          },
+          "dimensions": {
+            "width": 256.0,
+            "height": 76.0
+          },
+          "collapsed": false
+        }
+      },
+      "export_id": 4,
+      "connected_to": [],
+      "parent_action": null
+    }
+  ]
+}
